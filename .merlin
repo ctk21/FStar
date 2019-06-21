@@ -7,6 +7,7 @@ PKG zarith
 PKG menhirLib
 PKG ulex
 PKG ocaml-migrate-parsetree
+PKG landmarks
 
 S src/basic/ml
 S src/extraction/ml

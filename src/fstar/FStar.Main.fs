@@ -100,16 +100,23 @@ let fstar_files: ref<option<list<string>>> = Util.mk_ref None
 (****************************************************************************)
 (* Main function                                                            *)
 (****************************************************************************)
+let main_go_lm = Util.register_lm "main_go"
+let main_go_tactics_lm = Util.register_lm "main_go_tactics"
+
 let go _ =
   let res, filenames = process_args () in
-  match res with
+  if Options.profile_landmarks () then Util.start_lm_profiling ();
+  Util.enter_lm main_go_lm;
+  begin match res with
     | Help ->
         Options.display_usage(); exit 0
     | Error msg ->
         Util.print_error msg; exit 1
     | Success ->
         fstar_files := Some filenames;
+        Util.enter_lm main_go_tactics_lm;
         load_native_tactics ();
+        Util.exit_lm main_go_tactics_lm;
 
         (* --dep: Just compute and print the transitive dependency graph;
                   don't verify anything *)
@@ -179,6 +186,8 @@ let go _ =
 
         else
           Errors.raise_error (Errors.Error_MissingFileName, "No file provided") Range.dummyRange
+  end ;
+Util.exit_lm main_go_lm
 
 (* This is pretty awful. Now that we have Lazy_embedding, we can get rid of this table. *)
 let lazy_chooser k i = match k with
@@ -215,7 +224,7 @@ let main () =
   try
     setup_hooks ();
     let _, time = Util.record_time go in
-    if Options.print () || Options.print_in_place () then
+    if Options.print () || Options.print_in_place () then begin
       match !fstar_files with
       | Some filenames ->
           let printing_mode =
@@ -225,7 +234,8 @@ let main () =
               FStar.Prettyprint.FromTempToFile
           in
           FStar.Prettyprint.generate printing_mode filenames
-      | None -> Util.print_error "Internal error: List of source files not properly set";
+      | None -> Util.print_error "Internal error: List of source files not properly set"
+    end ;
     if FStar.Options.query_stats()
     then Util.print2 "TOTAL TIME %s ms: %s\n"
               (FStar.Util.string_of_int time)

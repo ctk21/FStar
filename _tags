@@ -10,7 +10,13 @@ true: \
   annot, bin_annot, thread, -traverse, \
   package(batteries), \
   package(zarith), \
-  package(ppx_deriving.std), package(ppx_deriving_yojson)
+  package(ppx_deriving.std), \
+  package(ppx_deriving_yojson), \
+  package(landmarks), \
+  package(landmarks.ppx)
+
+# unfortunately we end up failing ulib if we do this on everything:
+#  ppxopt(landmarks.ppx,--auto)
 
 # ADL: the new unicode lexer
 "src/parser/ml/FStar_Parser_LexFStar.ml": syntax(camlp4o)
@@ -35,6 +41,10 @@ true: \
 # Turn off warnings for extracted files
 <src/ocaml-output/**/*.ml> or <ulib/**/extracted/*.ml> or <ulib/tactics_ml/fstarlib_leftovers/*.ml>: \
   warn(-8-11-20-21-26-28)
+
+# landmarks ppx on ocaml-output/**/*.ml files (but didn't work)
+# <src/ocaml-output/**/*.ml>: \
+#  ppxopt(landmarks.ppx,)
 
 <ulib/ml/FStar_{U,}Int*.ml>  or "ulib/ml/fstarlib.cma": \
   package(stdint)

@@ -29,6 +29,12 @@ open System.Text.RegularExpressions
 
 let return_all x = x
 
+type lm_t = int
+let start_lm_profiling () = print_string "Landmark profiling not implmented for FSharp"
+let register_lm name = print_string "Landmark profiling not implmented for FSharp"; 0
+let enter_lm name = print_string "Landmark profiling not implmented for FSharp"
+let exit_lm name = print_string "Landmark profiling not implmented for FSharp"
+
 type time = System.DateTime
 let now () = System.DateTime.Now
 let time_diff (t1:time) (t2:time) : float * int =
