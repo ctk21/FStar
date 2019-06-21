@@ -141,7 +141,7 @@ let start_process'
   all_procs := proc :: !all_procs;
   proc
 
-let start_process
+let[@landmark] start_process
       (id: string) (prog: string) (args: string list)
       (stop_marker: string -> bool) : proc =
   start_process' id prog args (Some stop_marker)
@@ -151,7 +151,7 @@ let rec waitpid_ignore_signals pid =
   with Unix.Unix_error (Unix.EINTR, _, _) ->
     waitpid_ignore_signals pid
 
-let kill_process (p: proc) =
+let[@landmark] kill_process (p: proc) =
   if not p.killed then begin
       (* Close the fds directly: close_in and close_out both call `flush`,
          potentially forcing us to wait until p starts reading again. They

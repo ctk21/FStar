@@ -42,9 +42,9 @@ true: \
 <src/ocaml-output/**/*.ml> or <ulib/**/extracted/*.ml> or <ulib/tactics_ml/fstarlib_leftovers/*.ml>: \
   warn(-8-11-20-21-26-28)
 
-# landmarks ppx on ocaml-output/**/*.ml files (but didn't work)
-# <src/ocaml-output/**/*.ml>: \
-#  ppxopt(landmarks.ppx,)
+# landmarks ppx on ocaml-output/**/*.ml files
+<src/ocaml-output/**/*.ml>: \
+  ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx)
 
 <ulib/ml/FStar_{U,}Int*.ml>  or "ulib/ml/fstarlib.cma": \
   package(stdint)
