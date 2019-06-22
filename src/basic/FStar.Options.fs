@@ -303,21 +303,15 @@ let clear () =
 
 let _run = clear()
 
-let get_option_lm = Util.register_lm "options_get_option"
 let get_option s =
-  Util.enter_lm get_option_lm;
   let x = Util.smap_try_find (peek()) s in
-  Util.exit_lm get_option_lm;
   match x with
   | None -> failwith ("Impossible: option " ^s^ " not found")
   | Some s -> s
 
 
-let lookup_opt_lm = Util.register_lm "options_lookup_opt"
 let lookup_opt s c =
-  Util.enter_lm lookup_opt_lm;
   let x = c (get_option s) in
-  Util.exit_lm lookup_opt_lm;
   x
 
 let get_abort_on                ()      = lookup_opt "abort_on"                 as_int

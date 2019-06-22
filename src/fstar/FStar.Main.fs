@@ -106,7 +106,6 @@ let main_go_tactics_lm = Util.register_lm "main_go_tactics"
 let go _ =
   let res, filenames = process_args () in
   if Options.profile_landmarks () then Util.start_lm_profiling ();
-  Util.enter_lm main_go_lm;
   begin match res with
     | Help ->
         Options.display_usage(); exit 0
@@ -114,9 +113,7 @@ let go _ =
         Util.print_error msg; exit 1
     | Success ->
         fstar_files := Some filenames;
-        Util.enter_lm main_go_tactics_lm;
         load_native_tactics ();
-        Util.exit_lm main_go_tactics_lm;
 
         (* --dep: Just compute and print the transitive dependency graph;
                   don't verify anything *)
@@ -186,8 +183,7 @@ let go _ =
 
         else
           Errors.raise_error (Errors.Error_MissingFileName, "No file provided") Range.dummyRange
-  end ;
-Util.exit_lm main_go_lm
+  end
 
 (* This is pretty awful. Now that we have Lazy_embedding, we can get rid of this table. *)
 let lazy_chooser k i = match k with
