@@ -103,7 +103,6 @@ let fstar_files: ref<option<list<string>>> = Util.mk_ref None
 
 let go _ =
   let res, filenames = process_args () in
-  if Options.profile_landmarks () then Util.start_lm_profiling ();
   begin match res with
     | Help ->
         Options.display_usage(); exit 0
