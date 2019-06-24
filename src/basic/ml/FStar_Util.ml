@@ -21,11 +21,8 @@ let enter_lm name = Landmark.enter name
 let exit_lm name = Landmark.exit name
 
 type time = float
-let now_lm = register_lm "Util_now"
 let now () =
-  enter_lm now_lm;
   let x = BatUnix.gettimeofday () in
-  exit_lm now_lm;
   x
 let time_diff (t1:time) (t2:time) : float * Prims.int =
   let n = t2 -. t1 in

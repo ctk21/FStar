@@ -100,8 +100,6 @@ let fstar_files: ref<option<list<string>>> = Util.mk_ref None
 (****************************************************************************)
 (* Main function                                                            *)
 (****************************************************************************)
-let main_go_lm = Util.register_lm "main_go"
-let main_go_tactics_lm = Util.register_lm "main_go_tactics"
 
 let go _ =
   let res, filenames = process_args () in

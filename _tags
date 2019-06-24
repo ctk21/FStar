@@ -42,16 +42,12 @@ true: \
 <src/ocaml-output/**/*.ml> or <ulib/**/extracted/*.ml> or <ulib/tactics_ml/fstarlib_leftovers/*.ml>: \
   warn(-8-11-20-21-26-28)
 
-# landmarks ppx on ocaml-output/**/*.ml files sadly this blows up
-#<src/ocaml-output/**/*.ml>: \
-#  ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
+# landmarks ppx on ocaml-output/**/*.ml files sadly this blows up (stack overflow)
+# <src/ocaml-output/**/*.ml>: \
+#   ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
 
-<src/ocaml-output/FStar_Options.ml>: \
-  ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
-
-<src/ocaml-output/FStar_TypeChecker_Normalize.ml>: \
-  ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
-
+<src/ocaml-output/FStar_{Main,Dependencies,Universal,TypeChecker_Normalize,TypeChecker_Tc,TypeChecker_Util,SMTEncoding_Encode}.ml>: \
+   ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
 
 
 <ulib/ml/FStar_{U,}Int*.ml>  or "ulib/ml/fstarlib.cma": \
