@@ -100,10 +100,9 @@ let fstar_files: ref<option<list<string>>> = Util.mk_ref None
 (****************************************************************************)
 (* Main function                                                            *)
 (****************************************************************************)
-
 let go _ =
   let res, filenames = process_args () in
-  begin match res with
+  match res with
     | Help ->
         Options.display_usage(); exit 0
     | Error msg ->
@@ -180,7 +179,6 @@ let go _ =
 
         else
           Errors.raise_error (Errors.Error_MissingFileName, "No file provided") Range.dummyRange
-  end
 
 (* This is pretty awful. Now that we have Lazy_embedding, we can get rid of this table. *)
 let lazy_chooser k i = match k with
@@ -217,7 +215,7 @@ let main () =
   try
     setup_hooks ();
     let _, time = Util.record_time go in
-    if Options.print () || Options.print_in_place () then begin
+    if Options.print () || Options.print_in_place () then
       match !fstar_files with
       | Some filenames ->
           let printing_mode =
@@ -227,8 +225,7 @@ let main () =
               FStar.Prettyprint.FromTempToFile
           in
           FStar.Prettyprint.generate printing_mode filenames
-      | None -> Util.print_error "Internal error: List of source files not properly set"
-    end ;
+      | None -> Util.print_error "Internal error: List of source files not properly set";
     if FStar.Options.query_stats()
     then Util.print2 "TOTAL TIME %s ms: %s\n"
               (FStar.Util.string_of_int time)

@@ -155,7 +155,6 @@ val include_path                : unit    -> list<string>
 val print                       : unit    -> bool
 val print_in_place              : unit    -> bool
 val profile                     :  (unit -> 'a) -> ('a -> string) -> 'a
-val profile_landmarks           : unit    -> bool
 val initial_fuel                : unit    -> int
 val initial_ifuel               : unit    -> int
 val interactive                 : unit    -> bool

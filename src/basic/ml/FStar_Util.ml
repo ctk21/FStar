@@ -8,22 +8,17 @@ let is_symbol c = if c > 255 then false else BatChar.is_symbol (BatChar.chr c)
    (http://www.dotnetperls.com/char-ispunctuation)
 *)
 let is_punctuation c = List.mem c [33; 34; 35; 37; 38; 39; 40; 41; 42; 44; 45; 46; 47; 58; 59; 63; 64; 91; 92; 93; 95; 123; 125]
+(*'!','"','#','%','&','\'','(',')','*',',','-','.','/',':',';','?','@','[','\\',']','_','{','}'*)
 
 let return_all x = x
 
 type lm_t = Landmark.landmark
-let start_lm_profiling () =
-  if not (Landmark.profiling ()) then Landmark.start_profiling ()
-  else print_string "Landmark profiling already started\n"
-
 let register_lm name = Landmark.register name
 let enter_lm name = Landmark.enter name
 let exit_lm name = Landmark.exit name
 
 type time = float
-let now () =
-  let x = BatUnix.gettimeofday () in
-  x
+let now () = BatUnix.gettimeofday ()
 let time_diff (t1:time) (t2:time) : float * Prims.int =
   let n = t2 -. t1 in
   n,

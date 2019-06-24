@@ -11,12 +11,7 @@ true: \
   package(batteries), \
   package(zarith), \
   package(ppx_deriving.std), \
-  package(ppx_deriving_yojson), \
-  package(landmarks), \
-  package(landmarks.ppx)
-
-# unfortunately we end up failing ulib if we do this on everything:
-#  ppxopt(landmarks.ppx,--auto)
+  package(ppx_deriving_yojson)
 
 # ADL: the new unicode lexer
 "src/parser/ml/FStar_Parser_LexFStar.ml": syntax(camlp4o)
@@ -42,14 +37,6 @@ true: \
 <src/ocaml-output/**/*.ml> or <ulib/**/extracted/*.ml> or <ulib/tactics_ml/fstarlib_leftovers/*.ml>: \
   warn(-8-11-20-21-26-28)
 
-# landmarks ppx on ocaml-output/**/*.ml files sadly this blows up (stack overflow)
-# <src/ocaml-output/**/*.ml>: \
-#   ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
-
-<src/ocaml-output/FStar_{Main,Dependencies,Universal,TypeChecker_Normalize,TypeChecker_Tc,TypeChecker_Util,SMTEncoding_Encode}.ml>: \
-   ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
-
-
 <ulib/ml/FStar_{U,}Int*.ml>  or "ulib/ml/fstarlib.cma": \
   package(stdint)
 
@@ -61,3 +48,27 @@ true: \
 
 <**/FStar_Monotonic_Seq.ml>: \
   principal
+
+
+#
+# To use landmarks to profile ocaml code:
+#  - make sure landmarks is installed with opam (opam install landmarks)
+#  - enable the landmarks and landmarks.ppx pacakges
+#  - select the modules for auto-instrumentation
+#
+# Uncomment the following to add the packages:
+#
+ true: \
+   package(landmarks), \
+   package(landmarks.ppx)
+#
+# Uncomment the following to profile specific modules:
+#
+ <src/ocaml-output/FStar_{Main,Dependencies,Universal,TypeChecker_Normalize,TypeChecker_Tc,TypeChecker_Util,SMTEncoding_Encode}.ml>: \
+    ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
+#
+#
+# NB: the fully inclusive landmarks ppx on ocaml-output/**/*.ml files can cause a stack overflow
+# <src/ocaml-output/**/*.ml>: \
+#   ppx(`ocamlfind query landmarks.ppx`/ppx.exe --as-ppx --auto)
+#
