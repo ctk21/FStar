@@ -28,6 +28,13 @@ exception HardError of string
 val max_int: int
 val return_all: 'a -> ML<'a>
 
+(* Landmarks profiling for ocaml *)
+type lm_t
+val start_lm_profiling: unit -> unit
+val register_lm: string -> lm_t
+val enter_lm: lm_t -> unit
+val exit_lm: lm_t -> unit
+
 type time
   = System.DateTime // JUST FSHARP
 val now : unit -> time
