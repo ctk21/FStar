@@ -8,7 +8,7 @@
       1,
       [ "@query" ],
       0,
-      "769bf96e4ce8f3d3c7d4d226540552fc"
+      "6bca0c009eca45e02d3156d0163442e5"
     ],
     [
       "Trace.__proj__S__item___0",
@@ -21,7 +21,7 @@
         "refinement_interpretation_Tm_refine_404885b3cc4eeb5f45b884df07c7ad02"
       ],
       0,
-      "cced9a0e4b1044e5cd5ddac27599310b"
+      "68a9ac321514a236ee5cd5a6ae76d9e2"
     ],
     [
       "Trace.tick_last",
@@ -35,7 +35,7 @@
         "fuel_guarded_inversion_Prims.list", "subterm_ordering_Prims.Cons"
       ],
       0,
-      "7d8f005e2f1f017d2d399a965d0237a2"
+      "4ad2e5940152eb71e2f332089d7be55b"
     ],
     [
       "Trace.cutlast",
@@ -49,7 +49,7 @@
         "fuel_guarded_inversion_Prims.list", "subterm_ordering_Prims.Cons"
       ],
       0,
-      "675a0bc61a90932243bac86efc3ffa3e"
+      "29a4b0a0f4b250d56bc55cd65f5fe3d7"
     ],
     [
       "Trace.fall",
@@ -63,7 +63,7 @@
         "fuel_guarded_inversion_Trace.mynat", "subterm_ordering_Trace.S"
       ],
       0,
-      "2aad50bf8bf8747fd3cb3cbf716a12d8"
+      "4815088eb42eb7c0aae534bba481c1eb"
     ],
     [
       "Trace.uu___99",
@@ -82,7 +82,7 @@
         "typing_tok_Trace.Z@tok"
       ],
       0,
-      "d8ced5fbfda155a410b5b80e5b481f94"
+      "201da534705a8f682f635f028ae81ca3"
     ],
     [
       "Trace.fact_aux",
@@ -100,7 +100,7 @@
         "well-founded-ordering-on-nat"
       ],
       0,
-      "f3a09d6bf24a71e3fef72829ce80ab9a"
+      "083860138badd9bee7934f8b31580800"
     ],
     [
       "Trace.uu___109",
@@ -125,7 +125,7 @@
         "refinement_kinding_Tm_refine_542f9d4f129664613f2483a6c88bc7c2"
       ],
       0,
-      "99ec06e4baa7af0fd3441dfc380d5139"
+      "8c664f880e2b828df55a12ad26933720"
     ],
     [
       "Trace.uu___113",
@@ -151,7 +151,7 @@
         "typing_Trace.fact_"
       ],
       0,
-      "5c6c6363b14443ae695d565c7c166672"
+      "7bea958b4254a84adb46ceaf1d8cf580"
     ],
     [
       "Trace.mynat",
@@ -160,7 +160,7 @@
       1,
       [ "@query" ],
       0,
-      "6b24816e4aa97d93be250aeeb41e579b"
+      "d55db8f714caca11acac3a84601ce818"
     ],
     [
       "Trace.__proj__S__item___0",
@@ -173,7 +173,7 @@
         "refinement_interpretation_Tm_refine_404885b3cc4eeb5f45b884df07c7ad02"
       ],
       0,
-      "1e545c4e8d8cb8ff64773397f449663e"
+      "f70cc1f9d5ac33058bd2a9254ca30268"
     ],
     [
       "Trace.tick_last",
@@ -187,7 +187,7 @@
         "fuel_guarded_inversion_Prims.list", "subterm_ordering_Prims.Cons"
       ],
       0,
-      "549b47d22628229f72518690777a1647"
+      "0df4e422783cbb7b8b0a321dcba8f5e6"
     ],
     [
       "Trace.term_is_fv",
@@ -204,7 +204,7 @@
         "typing_FStar.Tactics.Result.uu___is_Failed"
       ],
       0,
-      "bc68b66d3f6e7e1954a72009bb10f061"
+      "2c063dffcec4a66e75d76be11661ac14"
     ],
     [
       "Trace.cutlast",
@@ -218,7 +218,7 @@
         "fuel_guarded_inversion_Prims.list", "subterm_ordering_Prims.Cons"
       ],
       0,
-      "be278888c98e24c5e1e4028163f3264c"
+      "a624895aaa5698d2179fb99758380f79"
     ],
     [
       "Trace.fall",
@@ -232,7 +232,7 @@
         "fuel_guarded_inversion_Trace.mynat", "subterm_ordering_Trace.S"
       ],
       0,
-      "023028900b161e3affca6279beb6eda2"
+      "ffba06970c548c9cbf2a02ede0926139"
     ],
     [
       "Trace.uu___99",
@@ -251,7 +251,7 @@
         "typing_tok_Trace.Z@tok"
       ],
       0,
-      "b09a45f783203654951cc0122cffb485"
+      "e477ec09921f0a16380c523da10e17d3"
     ],
     [
       "Trace.fact_aux",
@@ -269,7 +269,7 @@
         "well-founded-ordering-on-nat"
       ],
       0,
-      "c7111b5903bdf458525a7f2d66c7e1ce"
+      "f975640dba262c0dd90c0d61ad1335f9"
     ],
     [
       "Trace.uu___109",
@@ -294,7 +294,7 @@
         "refinement_kinding_Tm_refine_542f9d4f129664613f2483a6c88bc7c2"
       ],
       0,
-      "6517ada9092eef12ca4de9ab99b961c3"
+      "edaa823beab0f9cf8e7c64718349746b"
     ],
     [
       "Trace.uu___113",
@@ -320,7 +320,7 @@
         "typing_Trace.fact_"
       ],
       0,
-      "6015eedf582438172a82b296960dfa30"
+      "043ebb2d0c943ae1b1f0da31bddfced1"
     ]
   ]
 ]

@@ -243,12 +243,12 @@ let bg_z3_proc =
     let z3proc () =
       if !the_z3proc = None then make_new_z3_proc (z3_cmd_and_args ());
       must (!the_z3proc) in
-    let next_params = z3_cmd_and_args () in
     let ask input =
         incr the_z3proc_ask_count;
         let kill_handler () = "\nkilled\n" in
         BU.ask_process (z3proc ()) input kill_handler in
     let refresh () =
+        let next_params = z3_cmd_and_args () in
         let old_params = must (!the_z3proc_params) in
         if (Options.log_queries()) || (!the_z3proc_ask_count > 0) || (not (old_params = next_params)) then begin
           if (Options.query_stats()) && (not (!the_z3proc = None)) then
@@ -259,6 +259,7 @@ let bg_z3_proc =
         query_logging.close_log() in
     let restart () =
         query_logging.close_log();
+        let next_params = z3_cmd_and_args () in
         make_new_z3_proc next_params in
     let x : list<unit> = [] in
     BU.mk_ref ({ask = BU.with_monitor x ask;
@@ -647,7 +648,8 @@ let z3_job (log_file:_) (r:Range.range) fresh (label_messages:error_labels) inpu
   let start = BU.now() in
   let status, statistics =
     try doZ3Exe log_file r fresh input label_messages
-    with e when (refresh(); false) -> //refresh the solver but don't handle the exception; it'll be caught upstream
+    with e ->
+        refresh(); //refresh the solver but don't handle the exception; it'll be caught upstream
         raise e
   in
   let _, elapsed_time = BU.time_diff start (BU.now()) in
