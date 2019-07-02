@@ -457,3 +457,7 @@ val write : ref<'a> -> 'a -> unit
 (* Marshaling to and from strings *)
 val marshal: 'a -> string
 val unmarshal: string -> 'a
+
+(* statmemprof helper *)
+val memprofhelper_start: float -> int -> int -> unit
+val memprofhelper_stop_and_dump_to_file: string -> int -> unit

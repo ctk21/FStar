@@ -199,6 +199,7 @@ let defaults =
       ("load"                         , List []);
       ("log_queries"                  , Bool false);
       ("log_types"                    , Bool false);
+      ("memory_profile"               , List []);
       ("max_fuel"                     , Int 8);
       ("max_ifuel"                    , Int 2);
       ("min_fuel"                     , Int 1);
@@ -346,6 +347,7 @@ let get_lax                     ()      = lookup_opt "lax"                      
 let get_load                    ()      = lookup_opt "load"                     (as_list as_string)
 let get_log_queries             ()      = lookup_opt "log_queries"              as_bool
 let get_log_types               ()      = lookup_opt "log_types"                as_bool
+let get_memory_profile          ()      = lookup_opt "memory_profile"           as_comma_string_list
 let get_max_fuel                ()      = lookup_opt "max_fuel"                 as_int
 let get_max_ifuel               ()      = lookup_opt "max_ifuel"                as_int
 let get_min_fuel                ()      = lookup_opt "min_fuel"                 as_int
@@ -799,6 +801,11 @@ let rec specs_with_types () : list<(char * string * opt_type * string)> =
         "log_queries",
         Const (Bool true),
         "Log the Z3 queries in several queries-*.smt2 files, as we go");
+
+       ( noshort,
+        "memory_profile",
+        Accumulated (SimpleStr "option"),
+        "Statistical memory profile <filename>,<sample_rate>,<call_stack>,<threshold> (e.g. foo.out,0.001,20,100)");
 
        ( noshort,
         "max_fuel",
@@ -1486,6 +1493,7 @@ let log_queries                  () = get_log_queries                 ()
 let keep_query_captions          () = log_queries                     ()
                                     && get_keep_query_captions        ()
 let log_types                    () = get_log_types                   ()
+let memory_profile               () = get_memory_profile              ()
 let max_fuel                     () = get_max_fuel                    ()
 let max_ifuel                    () = get_max_ifuel                   ()
 let min_fuel                     () = get_min_fuel                    ()

@@ -108,6 +108,12 @@ let go _ =
     | Error msg ->
         Util.print_error msg; exit 1
     | Success ->
+        (* can do something like this: --memory_profile profile.out,0.0001,20,100 *)
+        let mem_profile_lst = Options.memory_profile() in
+        if (List.length mem_profile_lst) > 0 then begin
+          let fn n = List.nth mem_profile_lst n in
+          Util.memprofhelper_start (float_of_string (fn 1)) (int_of_string (fn 2)) (int_of_string (fn 3))
+        end;
         fstar_files := Some filenames;
         load_native_tactics ();
 
@@ -183,6 +189,13 @@ let go _ =
 
         else
           Errors.raise_error (Errors.Error_MissingFileName, "No file provided") Range.dummyRange
+        ;
+
+        if (List.length mem_profile_lst) > 0 then begin
+          let fn n = List.nth mem_profile_lst n in
+          Util.memprofhelper_stop_and_dump_to_file (fn 0) (int_of_string (fn 3))
+        end
+
 
 (* This is pretty awful. Now that we have Lazy_embedding, we can get rid of this table. *)
 let lazy_chooser k i = match k with

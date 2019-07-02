@@ -1211,3 +1211,11 @@ let within_bounds repr signedness width =
   let lower, upper = bounds signedness width in
   let value = Z.of_string (ensure_decimal repr) in
   Z.leq lower value && Z.leq value upper
+
+open MemprofHelpers
+
+let memprofhelper_start sampling_rate callstack_size min_samples_print =
+  MemprofHelpers.start sampling_rate (Z.to_int callstack_size) (Z.to_int min_samples_print)
+
+let memprofhelper_stop_and_dump_to_file fname min_samples_print =
+  MemprofHelpers.stop_and_dump_to_file fname (Z.to_int min_samples_print)

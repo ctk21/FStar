@@ -157,6 +157,7 @@ val legacy_interactive          : unit    -> bool
 val lsp_server                  : unit    -> bool
 val log_queries                 : unit    -> bool
 val log_types                   : unit    -> bool
+val memory_profile              : unit    -> list<string>
 val max_fuel                    : unit    -> int
 val max_ifuel                   : unit    -> int
 val min_fuel                    : unit    -> int
