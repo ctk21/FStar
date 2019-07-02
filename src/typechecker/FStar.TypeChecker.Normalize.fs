@@ -987,11 +987,11 @@ let decide_unfolding cfg env stack rng fv qninfo (* : option<(cfg * stack)> *) =
         let stack = push (App (env, ref, None, Range.dummyRange)) stack in
         Some (cfg, stack)
 
-let on_domain_lids =
-  let fext_lid (s:string) = Ident.lid_of_path ["FStar"; "FunctionalExtensionality"; s] Range.dummyRange in
-  ["on_domain"; "on_dom"; "on_domain_g"; "on_dom_g"] |> List.map fext_lid
-
 let is_fext_on_domain (t:term) :option<term> =
+  let mk_ident_dummy x = Ident.mk_ident (x, Range.dummyRange) in
+  let fext_ns = List.map mk_ident_dummy ["FStar"; "FunctionalExtensionality"] in
+  let on_domain_ids = ["on_domain"; "on_dom"; "on_domain_g"; "on_dom_g"] in
+  let on_domain_lids = List.map (fun x -> Ident.lid_of_ns_and_id fext_ns (mk_ident_dummy x)) on_domain_ids in
   let is_on_dom fv = on_domain_lids |> List.existsb (fun l -> S.fv_eq_lid fv l) in
 
   match (SS.compress t).n with
