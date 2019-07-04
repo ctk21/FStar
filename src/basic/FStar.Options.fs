@@ -805,7 +805,7 @@ let rec specs_with_types () : list<(char * string * opt_type * string)> =
        ( noshort,
         "memory_profile",
         Accumulated (SimpleStr "option"),
-        "Statistical memory profile <filename>,<sample_rate>,<call_stack>,<threshold> (e.g. foo.out,0.001,20,100)");
+        "Statistical memory profile <filename>,<sample_rate>,<call_stack>,<threshold> (e.g. foo.out,0.01,20,100)");
 
        ( noshort,
         "max_fuel",
