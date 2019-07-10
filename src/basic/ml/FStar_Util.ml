@@ -396,7 +396,7 @@ module ZMap = BatMap.Make(Z)
 type 'value imap = 'value ZHashtbl.t
 let imap_create (i:Z.t) : 'value imap = ZHashtbl.create (Z.to_int i)
 let imap_clear (s:('value imap)) = ZHashtbl.clear s
-let imap_add (m:'value imap) k (v:'value) = ZHashtbl.add m k v
+let imap_add (m:'value imap) k (v:'value) = ZHashtbl.replace m k v
 let imap_of_list (l: (Z.t * 'value) list) =
   let s = ZHashtbl.create (BatList.length l) in
   FStar_List.iter (fun (x,y) -> imap_add s x y) l;

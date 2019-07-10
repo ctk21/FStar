@@ -223,6 +223,11 @@ type decl =
   | GetStatistics
   | GetReasonUnknown
 
+type a_name_string = {
+  an_str:        string;
+  an_id:         int;
+}
+
 (*
  * See Term.fsi for an explanation of this type
  *)
@@ -230,37 +235,63 @@ type decls_elt = {
   sym_name:   option<string>;
   key:        option<string>;
   decls:      list<decl>;
-  a_names:    list<string>;
+  a_names:    list<a_name_string>;
 }
 
 type decls_t = list<decls_elt>
 
-let collect_decl_names =
-  let sm = BU.mk_ref (BU.smap_create 32) in
-  (fun decls aux_decls ->
-    List.iter (fun elt ->
-        List.iter (fun s -> BU.smap_add !sm s true) elt.a_names
-      ) aux_decls;
-    List.iter (fun d -> match d with
-                        | Assume a -> BU.smap_add !sm (a.assumption_name) true
-                        | _ -> ()) decls;
-    let keys = BU.smap_keys !sm in
-    BU.smap_clear !sm;
-    keys)
+let _gen =
+  let x = BU.mk_ref 0 in
+  let next_id () = let v = !x in x := v + 1; v in
+  next_id
+
+let a_name_db : BU.smap<a_name_string> = BU.smap_create 64
+
+let make_a_name s =
+  match BU.smap_try_find a_name_db s with
+    | Some x -> x
+    | None -> let x = {an_str=s; an_id=_gen ()} in
+          BU.smap_add a_name_db x.an_str x;
+          x
 
 let mk_decls name key decls aux_decls = [{
   sym_name    = Some name;
   key         = Some key;
   decls       = decls;
   a_names     =  //AR: collect the names of aux_decls and decls to be retained in case of a cache hit
-    collect_decl_names decls aux_decls;
+    let im = BU.imap_create 20 in
+    List.iter (fun elt ->
+      List.iter (fun s ->
+        BU.imap_add im s.an_id s.an_str) elt.a_names
+    ) aux_decls;
+    List.iter (fun d -> match d with
+                        | Assume a ->
+                            let x = make_a_name a.assumption_name in
+                            BU.imap_add im x.an_id x.an_str
+                        | _ -> ()) decls;
+
+    let lst = BU.imap_fold im (fun k v acc -> {an_str=v; an_id=k}::acc) [] in
+    (*if Options.debug_at_level "dump_mk_decls" (Options.Other "SMTEncoding") then begin
+      let n = BU.mk_ref 0 in
+      List.iter (fun elt ->
+        List.iter (fun s -> n := 1 + !n) elt.a_names
+      ) aux_decls;
+      BU.print2 "%s  %s\n" name key;
+      BU.print1 "n_decls: %s\n" (BU.string_of_int (List.length decls));
+      BU.print1 "n_aux_decls: %s\n" (BU.string_of_int (List.length aux_decls));
+      BU.print1 "tot aux_decls: %s\n" (BU.string_of_int (!n));
+      List.iter (fun x -> BU.print2 "  %s %s\n" (BU.string_of_int x.an_id) x.an_str) lst
+    end;*)
+    lst
 }]
 
 let mk_decls_trivial decls = [{
   sym_name = None;
   key = None;
   decls = decls;
-  a_names = collect_decl_names decls [];
+  a_names = List.filter_map (function
+      | Assume a -> Some (make_a_name (a.assumption_name))
+      | _ -> None) decls;
 }]
 
 let decls_list_of l = l |> List.collect (fun elt -> elt.decls)

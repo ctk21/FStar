@@ -1665,7 +1665,9 @@ let recover_caching_and_update_env (env:env_t) (decls:decls_t) :decls_t =
   decls |> List.collect (fun elt ->
     if elt.key = None then [elt]  //not meant to be hashconsed, keep it
     else match BU.smap_try_find env.global_cache (elt.key |> BU.must) with
-         | Some cache_elt -> [Term.RetainAssumptions cache_elt.a_names] |> mk_decls_trivial  //hit, retain a_names from the hit entry
+         | Some cache_elt ->
+            let xs = List.map (fun x -> x.an_str) cache_elt.a_names in
+            [Term.RetainAssumptions xs] |> mk_decls_trivial  //hit, retain a_names from the hit entry
                                                                                              //AND drop elt
          | None ->  //no hit, update cache and retain elt
            BU.smap_add env.global_cache (elt.key |> BU.must) elt;

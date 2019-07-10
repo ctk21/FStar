@@ -130,6 +130,12 @@ type decl =
   | GetStatistics
   | GetReasonUnknown
 
+type a_name_string = {
+  an_str:        string;
+  an_id:         int;
+}
+
+
 (*
  * AR: decls_elt captures a block of "related" decls
  *     For example, for a Tm_refine_<MD5> symbol,
@@ -156,7 +162,7 @@ type decls_elt = {
   sym_name:   option<string>;  //name of the main synbol, e.g. Tm_refine_<MD5>
   key:        option<string>;  //the MD5 string
   decls:      list<decl>;      //list of decls, e.g. typing axioms, hasEq, for a Tm_refine
-  a_names:    list<string>;    //assumption names that must be kept IF this entry has a cache hit
+  a_names:    list<a_name_string>;    //assumption names that must be kept IF this entry has a cache hit
                                //--used to not filter them when using_facts_from
 }
 
