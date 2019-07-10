@@ -335,6 +335,7 @@ let psmap_find_map (m:psmap<'value>) f =
   Collections.Map.tryPick f m
 let psmap_modify (m:psmap<'value>) (k: string) (upd: option<'value> -> 'value) =
   Collections.Map.add k (upd <| Collections.Map.tryFind k m) m
+let psmap_keys (m:psmap<'value>) = psmap_fold m (fun k v keys -> k::keys) []
 
 type imap<'value>=System.Collections.Generic.Dictionary<int,'value>
 let imap_create<'value> (i:int) = new Dictionary<int,'value>(i)
@@ -366,6 +367,7 @@ let pimap_try_find (map: pimap<'value>) (key: int) =
   Collections.Map.tryFind key map
 let pimap_fold (m:pimap<'value>) f a =
   Collections.Map.fold (fun acc k v -> f k v acc) a m
+let pimap_keys (m:pimap<'value>) = pimap_fold m (fun k v keys -> k::keys) []
 
 let format (fmt:string) (args:list<string>) =
     let frags = fmt.Split([|"%s"|], System.StringSplitOptions.None) in

@@ -98,6 +98,7 @@ val psmap_try_find: psmap<'value> -> string -> option<'value>
 val psmap_fold: psmap<'value> -> (string -> 'value -> 'a -> 'a) -> 'a -> 'a
 val psmap_find_map: psmap<'value> -> (string -> 'value -> option<'a>) -> option<'a>
 val psmap_modify: psmap<'value> -> string -> (option<'value> -> 'value) -> psmap<'value>
+val psmap_keys: psmap<'value> -> list<string>
 
 (* not relying on representation *)
 type imap<'value>
@@ -121,6 +122,7 @@ val pimap_add: pimap<'value> -> int -> 'value -> pimap<'value>
 val pimap_find_default: pimap<'value> -> int -> 'value -> 'value
 val pimap_try_find: pimap<'value> -> int -> option<'value>
 val pimap_fold: pimap<'value> -> (int -> 'value -> 'a -> 'a) -> 'a -> 'a
+val pimap_keys: pimap<'value> -> list<int>
 
 val format: string -> list<string> -> string
 val format1: string -> string -> string

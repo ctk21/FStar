@@ -240,14 +240,20 @@ let mk_decls name key decls aux_decls = [{
   key         = Some key;
   decls       = decls;
   a_names     =  //AR: collect the names of aux_decls and decls to be retained in case of a cache hit
-    let sm = BU.smap_create 20 in
-    List.iter (fun elt ->
-      List.iter (fun s -> BU.smap_add sm s "0") elt.a_names
-    ) aux_decls;
-    List.iter (fun d -> match d with
-                        | Assume a -> BU.smap_add sm (a.assumption_name) "0"
-                        | _ -> ()) decls;
-    BU.smap_keys sm
+    let sm = BU.psmap_empty () in
+
+    let fn acc elt =
+      List.fold_left
+        (fun acc s -> BU.psmap_add acc s false)
+        acc elt.a_names in
+    let sm = List.fold_left fn sm aux_decls in
+
+    let sm = List.fold_left
+      (fun acc x -> match x with
+                | Assume a -> BU.psmap_add acc (a.assumption_name) false
+                | _ -> acc)
+      sm decls in
+    BU.psmap_keys sm
 }]
 
 let mk_decls_trivial decls = [{

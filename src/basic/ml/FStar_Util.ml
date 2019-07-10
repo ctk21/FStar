@@ -388,6 +388,7 @@ let psmap_find_map (m:'value psmap) f =
   !res
 let psmap_modify (m: 'value psmap) (k: string) (upd: 'value option -> 'value) =
   StringMap.modify_opt k (fun vopt -> Some (upd vopt)) m
+let psmap_keys (m:'value psmap) = psmap_fold m (fun k _ acc -> k::acc) []
 
 module ZHashtbl = BatHashtbl.Make(Z)
 module ZMap = BatMap.Make(Z)
@@ -414,6 +415,7 @@ let pimap_find_default (map: 'value pimap) (key: Z.t) (dflt: 'value) =
 let pimap_try_find (map: 'value pimap) (key: Z.t) =
   ZMap.Exceptionless.find key map
 let pimap_fold (m:'value pimap) f a = ZMap.fold f m a
+let pimap_keys (m:'value pimap) = pimap_fold m (fun k _ acc -> k::acc) []
 
 let format (fmt:string) (args:string list) =
   let frags = BatString.nsplit fmt "%s" in
