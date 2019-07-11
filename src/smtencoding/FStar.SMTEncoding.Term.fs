@@ -235,32 +235,35 @@ type decls_elt = {
 
 type decls_t = list<decls_elt>
 
-let collect_decl_names =
-  let sm = BU.mk_ref (BU.smap_create 32) in
-  (fun decls aux_decls ->
-    List.iter (fun elt ->
-        List.iter (fun s -> BU.smap_add !sm s true) elt.a_names
-      ) aux_decls;
-    List.iter (fun d -> match d with
-                        | Assume a -> BU.smap_add !sm (a.assumption_name) true
-                        | _ -> ()) decls;
-    let keys = BU.smap_keys !sm in
-    BU.smap_clear !sm;
-    keys)
+let collect_simple_a_names decls =
+  List.filter_map (function
+               | Assume a -> Some a.assumption_name
+               | _ -> None) decls
+
+let collect_aux_dedup_a_names decls aux_decls =
+  let sm = BU.smap_create 20 in
+  List.iter (fun elt ->
+     List.iter (fun s -> BU.smap_add sm s true) elt.a_names
+  ) aux_decls;
+  List.iter (fun d -> match d with
+                     | Assume a -> BU.smap_add sm (a.assumption_name) true
+                      | _ -> ()) decls;
+  BU.smap_keys sm
 
 let mk_decls name key decls aux_decls = [{
   sym_name    = Some name;
   key         = Some key;
   decls       = decls;
   a_names     =  //AR: collect the names of aux_decls and decls to be retained in case of a cache hit
-    collect_decl_names decls aux_decls;
+    if aux_decls = [] then collect_simple_a_names decls
+    else collect_aux_dedup_a_names decls aux_decls
 }]
 
 let mk_decls_trivial decls = [{
   sym_name = None;
   key = None;
   decls = decls;
-  a_names = collect_decl_names decls [];
+  a_names = collect_simple_a_names decls;
 }]
 
 let decls_list_of l = l |> List.collect (fun elt -> elt.decls)
