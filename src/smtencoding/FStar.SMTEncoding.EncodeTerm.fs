@@ -1463,20 +1463,6 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
 
 
     let unboxInt_l : (list<term> -> term) -> list<term> -> term = fun f l -> f (List.map Term.unboxInt l) in
-    let connectives = [
-        (Const.and_lid,   enc_prop_c (bin_op mkAnd));
-        (Const.or_lid,    enc_prop_c (bin_op mkOr));
-        (Const.imp_lid,   mk_imp);
-        (Const.iff_lid,   enc_prop_c (bin_op mkIff));
-        (Const.ite_lid,   mk_ite);
-        (Const.not_lid,   enc_prop_c (un_op mkNot));
-        (Const.eq2_lid,   eq_op);
-        (Const.c_eq2_lid, eq_op);
-        (Const.eq3_lid,   eq3_op);
-        (Const.c_eq3_lid, h_equals_op);
-        (Const.true_lid,  const_op Term.mkTrue);
-        (Const.false_lid, const_op Term.mkFalse);
-    ] in
 
     let rec fallback phi =  match phi.n with
         | Tm_meta(phi', Meta_labeled(msg, r, b)) ->
@@ -1552,6 +1538,21 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
         | None -> fallback phi
 
         | Some (U.BaseConn(op, arms)) ->
+          let connectives = [
+              (Const.and_lid,   enc_prop_c (bin_op mkAnd));
+              (Const.or_lid,    enc_prop_c (bin_op mkOr));
+              (Const.imp_lid,   mk_imp);
+              (Const.iff_lid,   enc_prop_c (bin_op mkIff));
+              (Const.ite_lid,   mk_ite);
+              (Const.not_lid,   enc_prop_c (un_op mkNot));
+              (Const.eq2_lid,   eq_op);
+              (Const.c_eq2_lid, eq_op);
+              (Const.eq3_lid,   eq3_op);
+              (Const.c_eq3_lid, h_equals_op);
+              (Const.true_lid,  const_op Term.mkTrue);
+              (Const.false_lid, const_op Term.mkFalse);
+          ] in
+
           (match connectives |> List.tryFind (fun (l, _) -> lid_equals op l) with
              | None -> fallback phi
              | Some (_, f) -> f phi.pos arms)
