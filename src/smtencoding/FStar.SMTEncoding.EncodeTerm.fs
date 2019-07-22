@@ -1385,22 +1385,23 @@ and encode_smt_patterns (pats_l:list<(list<S.arg>)>) env : list<(list<term>)> * 
     pats_l ([], [])
 
 and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to be normalized; the existential variables are all labels *)
-    let debug phi =
+    let debug phi env =
        if Env.debug env.tcenv <| Options.Other "SMTEncoding"
        then BU.print2 "Formula (%s)  %s\n"
                      (Print.tag_of_term phi)
                      (Print.term_to_string phi) in
-    let enc (f:list<term> -> term) : Range.range -> args -> (term * decls_t) = fun r l ->
+
+    let enc (env:env_t) (f:list<term> -> term) : Range.range -> args -> (term * decls_t) = fun r l ->
         let decls, args = BU.fold_map (fun decls x -> let t, decls' = encode_term (fst x) env in decls@decls', t) [] l in
         ({f args with rng=r}, decls) in
 
-    let const_op f r _ = (f r, []) in
+    let const_op f env r _ = (f r, []) in
     let un_op f l = f <| List.hd l in
     let bin_op : ((term * term) -> term) -> list<term> -> term = fun f -> function
         | [t1;t2] -> f(t1,t2)
         | _ -> failwith "Impossible" in
 
-    let enc_prop_c f : Range.range -> args -> (term * decls_t) = fun r l ->
+    let enc_prop_c f : env_t -> Range.range -> args -> (term * decls_t) = fun env r l ->
         let decls, phis =
             BU.fold_map (fun decls (t, _) ->
                 let phi, decls' = encode_formula t env in
@@ -1411,18 +1412,18 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
     // This gets called for
     // eq2 : #a:Type -> a -> a -> Type
     // equals: #a:Type -> a -> a -> Type
-    let eq_op r args : (term * decls_t) =
+    let eq_op env r args : (term * decls_t) =
         let rf = List.filter (fun (a,q) -> match q with | Some (Implicit _) -> false | _ -> true) args in
         if List.length rf <> 2
         then failwith (BU.format1 "eq_op: got %s non-implicit arguments instead of 2?" (string_of_int (List.length rf)))
-        else enc (bin_op mkEq) r rf
+        else enc env (bin_op mkEq) r rf
     in
 
     // eq3 : #a:Type -> #b:Type -> a -> b -> Type
-    let eq3_op r args : (term * decls_t) =
+    let eq3_op env r args : (term * decls_t) =
         let n = List.length args in
         if n=4
-        then enc (fun terms ->
+        then enc env (fun terms ->
                    match terms with
                    | [t0; t1; v0; v1] -> mkAnd (mkEq(t0, t1), mkEq(v0, v1))
                    | _ -> failwith "Impossible") r args
@@ -1430,17 +1431,18 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
     in
 
     // h_equals : #a:Type -> a -> #b:Type -> b -> Type
-    let h_equals_op r args : (term * decls_t) =
+    let h_equals_op env r args : (term * decls_t) =
         let n = List.length args in
         if n=4
-        then enc (fun terms ->
+        then enc env (fun terms ->
                    match terms with
                    | [t0; v0; t1; v1] -> mkAnd (mkEq(t0, t1), mkEq(v0, v1))
                    | _ -> failwith "Impossible") r args
         else failwith (BU.format1 "eq3_op: got %s non-implicit arguments instead of 4?" (string_of_int n))
     in
 
-    let mk_imp r : Tot<(args -> (term * decls_t))> = function
+    let mk_imp env r args : (term * decls_t) =
+        match args with
         | [(lhs, _); (rhs, _)] ->
           let l1, decls1 = encode_formula rhs env in
           begin match l1.tm with
@@ -1451,7 +1453,8 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
           end
          | _ -> failwith "impossible" in
 
-    let mk_ite r: Tot<(args -> (term * decls_t))> = function
+    let mk_ite env r args : (term * decls_t) =
+        match args with
         | [(guard, _); (_then, _); (_else, _)] ->
           let (g, decls1) = encode_formula guard env in
           let (t, decls2) = encode_formula _then env in
@@ -1461,10 +1464,9 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
           res, decls1@decls2@decls3
         | _ -> failwith "impossible" in
 
-
     let unboxInt_l : (list<term> -> term) -> list<term> -> term = fun f l -> f (List.map Term.unboxInt l) in
 
-    let rec fallback phi =  match phi.n with
+    let rec fallback phi env = match phi.n with
         | Tm_meta(phi', Meta_labeled(msg, r, b)) ->
           let phi, decls = encode_formula phi' env in
           mk (Term.Labeled(phi, msg, r)) r, decls
@@ -1492,9 +1494,9 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
               begin match (SS.compress r).n, (SS.compress msg).n with
                 | Tm_constant (Const_range r), Tm_constant (Const_string (s, _)) ->
                   let phi = S.mk (Tm_meta(phi,  Meta_labeled(s, r, false))) None r in
-                  fallback phi
+                  fallback phi env
                 | _ ->
-                  fallback phi
+                  fallback phi env
               end
 
             | Tm_fvar fv, [(t, _)]
@@ -1531,11 +1533,11 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
           | _ -> guards in
         vars, pats, mk_and_l guards, body, decls@decls'@decls'' in
 
-    debug phi;
+    debug phi env;
 
     let phi = U.unascribe phi in
     match U.destruct_typ_as_formula phi with
-        | None -> fallback phi
+        | None -> fallback phi env
 
         | Some (U.BaseConn(op, arms)) ->
           let connectives = [
@@ -1554,8 +1556,8 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
           ] in
 
           (match connectives |> List.tryFind (fun (l, _) -> lid_equals op l) with
-             | None -> fallback phi
-             | Some (_, f) -> f phi.pos arms)
+             | None -> fallback phi env
+             | Some (_, f) -> f env phi.pos arms)
 
         | Some (U.QAll(vars, pats, body)) ->
           pats |> List.iter (check_pattern_vars env vars);
