@@ -1395,7 +1395,7 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
         let decls, args = BU.fold_map (fun decls x -> let t, decls' = encode_term (fst x) env in decls@decls', t) [] l in
         ({f args with rng=r}, decls) in
 
-    let const_op f env r _ = (f r, []) in
+    let const_op f r _ = (f r, []) in
     let un_op f l = f <| List.hd l in
     let bin_op : ((term * term) -> term) -> list<term> -> term = fun f -> function
         | [t1;t2] -> f(t1,t2)
@@ -1540,24 +1540,32 @@ and encode_formula (phi:typ) (env:env_t) : (term * decls_t)  = (* expects phi to
         | None -> fallback phi env
 
         | Some (U.BaseConn(op, arms)) ->
-          let connectives = [
-              (Const.and_lid,   enc_prop_c (bin_op mkAnd));
-              (Const.or_lid,    enc_prop_c (bin_op mkOr));
-              (Const.imp_lid,   mk_imp);
-              (Const.iff_lid,   enc_prop_c (bin_op mkIff));
-              (Const.ite_lid,   mk_ite);
-              (Const.not_lid,   enc_prop_c (un_op mkNot));
-              (Const.eq2_lid,   eq_op);
-              (Const.c_eq2_lid, eq_op);
-              (Const.eq3_lid,   eq3_op);
-              (Const.c_eq3_lid, h_equals_op);
-              (Const.true_lid,  const_op Term.mkTrue);
-              (Const.false_lid, const_op Term.mkFalse);
-          ] in
-
-          (match connectives |> List.tryFind (fun (l, _) -> lid_equals op l) with
-             | None -> fallback phi env
-             | Some (_, f) -> f env phi.pos arms)
+          begin
+          match op with
+              | s when lid_equals op Const.and_lid ->
+                 enc_prop_c (bin_op mkAnd) env phi.pos arms
+              | s when lid_equals op Const.or_lid ->
+                 enc_prop_c (bin_op mkOr) env phi.pos arms
+              | s when lid_equals op Const.imp_lid ->
+                 mk_imp env phi.pos arms
+              | s when lid_equals op Const.iff_lid ->
+                 enc_prop_c (bin_op mkIff) env phi.pos arms
+              | s when lid_equals op Const.ite_lid ->
+                 mk_ite env phi.pos arms
+              | s when lid_equals op Const.not_lid ->
+                 enc_prop_c (un_op mkNot) env phi.pos arms
+              | s when lid_equals op Const.eq2_lid || lid_equals op Const.c_eq2_lid ->
+                 eq_op env phi.pos arms
+              | s when lid_equals op Const.eq3_lid ->
+                 eq3_op env phi.pos arms
+              | s when lid_equals op Const.c_eq3_lid ->
+                 h_equals_op env phi.pos arms
+              | s when lid_equals op Const.true_lid ->
+                 const_op Term.mkTrue phi.pos arms
+              | s when lid_equals op Const.false_lid ->
+                 const_op Term.mkFalse phi.pos arms
+              | _ -> fallback phi env
+          end
 
         | Some (U.QAll(vars, pats, body)) ->
           pats |> List.iter (check_pattern_vars env vars);
