@@ -223,21 +223,25 @@ let sanitize (s:string) : string =
 
 // Need to avoid shadowing an existing identifier (see comment about ty_or_exp_b)
 let find_uniq gamma mlident =
-  let rec find_uniq mlident i =
-    let suffix = if i = 0 then "" else string_of_int i in
-    let target_mlident = mlident ^ suffix in
-    let has_collision = List.existsb (function
-        | Bv (_, Inl ty_b) -> target_mlident = ty_b.ty_b_name
-        | Fv (_, exp_b)
-        | Bv (_, Inr exp_b) -> target_mlident = exp_b.exp_b_name
-      ) gamma in
-    if has_collision then
-      find_uniq mlident (i + 1)
-    else
-      target_mlident
-  in
   let mlident = sanitize mlident in
-  find_uniq mlident 0
+
+  let sm = BU.smap_create 64 in
+  List.iter (function
+      | Bv (_, Inl ty_b) when BU.starts_with ty_b.ty_b_name mlident
+          -> BU.smap_add sm ty_b.ty_b_name 0
+      | Fv (_, exp_b)
+      | Bv (_, Inr exp_b) when BU.starts_with exp_b.exp_b_name mlident
+          -> BU.smap_add sm exp_b.exp_b_name 0
+      | _ -> ()
+    ) gamma;
+
+  let rec find_uniq sm mlident i =
+    let target_mlident = if i = 0 then mlident else mlident ^ (string_of_int i) in
+    match BU.smap_try_find sm target_mlident with
+      | Some x -> find_uniq sm mlident (i+1)
+      | None -> target_mlident
+  in
+  find_uniq sm mlident 0
 
 let extend_bv (g:uenv) (x:bv) (t_x:mltyscheme) (add_unit:bool) (is_rec:bool)
               (mk_unit:bool (*some pattern terms become unit while extracting*))
