@@ -225,7 +225,7 @@ type decl =
 
 type a_name_string = {
   an_str:        string;
-  an_id:         int;
+  an_id:         Syntax.memo<int>;
 }
 
 (*
@@ -240,7 +240,16 @@ type decls_elt = {
 
 type decls_t = list<decls_elt>
 
-let make_a_name s = {an_str=s; an_id=BU.hashcode s}
+let make_a_name s = {an_str=s; an_id=BU.mk_ref None}
+
+let get_a_name_id a_name =
+  match !a_name.an_id with
+    | Some id -> id
+    | None -> begin
+        let id = BU.hashcode a_name.an_str in
+        a_name.an_id := Some id;
+        id
+      end
 
 let mk_decls name key decls aux_decls = [{
   sym_name    = Some name;
@@ -250,15 +259,15 @@ let mk_decls name key decls aux_decls = [{
     let im = BU.imap_create 20 in
     List.iter (fun elt ->
       List.iter (fun s ->
-        BU.imap_add im s.an_id s.an_str) elt.a_names
+        BU.imap_add im (get_a_name_id s) s) elt.a_names
     ) aux_decls;
     List.iter (fun d -> match d with
                         | Assume a ->
                             let x = make_a_name a.assumption_name in
-                            BU.imap_add im x.an_id x.an_str
+                            BU.imap_add im (get_a_name_id x) x
                         | _ -> ()) decls;
 
-    let lst = BU.imap_fold im (fun k v acc -> {an_str=v; an_id=k}::acc) [] in
+    let lst = BU.imap_fold im (fun k v acc -> v::acc) [] in
     (*if Options.debug_at_level "dump_mk_decls" (Options.Other "SMTEncoding") then begin
       let n = BU.mk_ref 0 in
       List.iter (fun elt ->
