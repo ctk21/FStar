@@ -240,19 +240,7 @@ type decls_elt = {
 
 type decls_t = list<decls_elt>
 
-let _gen =
-  let x = BU.mk_ref 0 in
-  let next_id () = let v = !x in x := v + 1; v in
-  next_id
-
-let a_name_db : BU.smap<a_name_string> = BU.smap_create 64
-
-let make_a_name s =
-  match BU.smap_try_find a_name_db s with
-    | Some x -> x
-    | None -> let x = {an_str=s; an_id=_gen ()} in
-          BU.smap_add a_name_db x.an_str x;
-          x
+let make_a_name s = {an_str=s; an_id=BU.hashcode s}
 
 let mk_decls name key decls aux_decls = [{
   sym_name    = Some name;
