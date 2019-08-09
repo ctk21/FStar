@@ -2794,7 +2794,6 @@ and check_let_bound_def top_level env lb
                                * guard_t    (* well-formedness of lbtyp        *)
                                * bool       (* true iff lbtyp was annotated    *)
                                =
-    let env1, _ = Env.clear_expected_typ env in
     let e1 = lb.lbdef in
 
     (* 1. extract the annotation of the let-bound term, e1, if any *)

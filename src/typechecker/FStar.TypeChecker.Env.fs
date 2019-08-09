@@ -1411,7 +1411,9 @@ let expected_typ env = match env.expected_typ with
   | Some t -> Some t
 
 let clear_expected_typ (env_: env): env * option<typ> =
-    {env_ with expected_typ=None; use_eq=false}, expected_typ env_
+  match (env_.expected_typ, env_.use_eq) with
+  | (None, false) -> env_, None
+  | _ -> {env_ with expected_typ=None; use_eq=false}, expected_typ env_
 
 let finish_module =
     let empty_lid = lid_of_ids [id_of_text ""] in
