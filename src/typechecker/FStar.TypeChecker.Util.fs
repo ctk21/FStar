@@ -489,7 +489,7 @@ let weaken_comp env (c:comp) (formula:term) : comp =
            None
            r
          in
-         
+
          let w_wp = lift_wp_and_bind_with env pure_assume_wp md u_res_t res_t wp in
          mk_comp md u_res_t res_t w_wp (weaken_flags c.flags)
 
@@ -1012,7 +1012,7 @@ let check_trivial_precondition env c =
     None
     (Env.get_range env)
   in
-  
+
   ct, vc, Env.guard_of_guard_formula <| NonTrivial vc
 
 let maybe_coerce_bool_to_type env (e:term) (lc:lcomp) (t:term) : term * lcomp =
@@ -1598,7 +1598,7 @@ let check_and_ascribe env (e:term) (t1:typ) (t2:typ) : term * guard_t =
     | Tm_name x -> mk (Tm_name ({x with sort=t2})) None e.pos
     | _ -> e
   in
-  let env = {env with use_eq=env.use_eq || (env.is_pattern && is_var e)} in
+  let env = Env.set_use_eq env (env.use_eq || (env.is_pattern && is_var e)) in
   match check env t1 t2 with
     | None -> raise_error (Err.expected_expression_of_type env t2 e t1) (Env.get_range env)
     | Some g ->

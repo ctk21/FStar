@@ -394,7 +394,7 @@ let incr_query_index env =
 ////////////////////////////////////////////////////////////
 let debug env (l:Options.debug_level_t) =
     Options.debug_at_level env.curmodule.str l
-let set_range e r = if r=dummyRange then e else {e with range=r}
+let set_range e r = if Range.equal_range r dummyRange then e else {e with range=r}
 let get_range e = e.range
 
 let toggle_id_info env enabled =
@@ -1402,6 +1402,9 @@ let open_universes_in env uvs terms =
     let univ_subst, univ_vars = Subst.univ_var_opening uvs in
     let env' = push_univ_vars env univ_vars in
     env', univ_vars, List.map (Subst.subst univ_subst) terms
+
+let set_use_eq env use_eq =
+  if env.use_eq = use_eq then env else {env with use_eq=use_eq}
 
 let set_expected_typ env t =
   {env with expected_typ = Some t; use_eq=false}

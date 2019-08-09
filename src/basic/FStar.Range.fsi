@@ -49,6 +49,8 @@ val col_of_pos: pos -> int
 val end_range: range -> range
 val compare: range -> range -> int
 val compare_use_range: range -> range -> int
+val equal_rng: rng -> rng -> bool
+val equal_range: range -> range -> bool
 val range_before_pos : range -> pos -> bool
 val end_of_line: pos -> pos
 val extend_to_end_of_line: range -> range
