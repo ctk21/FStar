@@ -394,7 +394,7 @@ let incr_query_index env =
 ////////////////////////////////////////////////////////////
 let debug env (l:Options.debug_level_t) =
     Options.debug_at_level env.curmodule.str l
-let set_range e r = if Range.equal_range r dummyRange then e else {e with range=r}
+let set_range e r = if r = dummyRange then e else {e with range=r}
 let get_range e = e.range
 
 let toggle_id_info env enabled =

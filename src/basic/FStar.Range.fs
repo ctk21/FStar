@@ -148,12 +148,6 @@ let compare_rng r1 r2     =
     else fcomp
 let compare r1 r2 = compare_rng r1.def_range r2.def_range
 let compare_use_range r1 r2 = compare_rng r1.use_range r2.use_range
-
-let equal_rng r1 r2 =
-  r1.start_pos = r2.start_pos && r1.end_pos = r2.end_pos && r1.file_name = r2.file_name
-let equal_range r1 r2 =
-  equal_rng r1.def_range r2.def_range && equal_rng r1.use_range r2.use_range
-
 let range_before_pos m1 p =
     pos_geq p (end_of_range m1)
 let end_of_line p = {p with col=max_int}
