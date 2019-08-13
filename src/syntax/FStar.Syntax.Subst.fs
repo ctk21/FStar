@@ -142,20 +142,35 @@ let rec compress_univ u = match u with
 (********************************************************************************)
 
 //Lookup a bound var or a name in a parallel substitution
-let subst_bv a s = U.find_map s (function
+let subst_bv a =
+  let fn = function
     | DB (i, x) when (i=a.index) ->
       Some (bv_to_name (Syntax.set_range_of_bv x (Syntax.range_of_bv a)))
-    | _ -> None)
-let subst_nm a s = U.find_map s (function
+    | _ -> None
+    in
+  fun s -> U.find_map s fn
+
+let subst_nm a =
+  let fn = function
     | NM (x, i) when bv_eq a x -> Some (bv_to_tm ({a with index=i}))
     | NT (x, t) when bv_eq a x -> Some t
-    | _ -> None)
-let subst_univ_bv x s = U.find_map s (function
+    | _ -> None
+    in
+  fun s -> U.find_map s fn
+
+let subst_univ_bv x =
+  let fn = function
     | UN(y, t) when (x=y) -> Some t
-    | _ -> None)
-let subst_univ_nm (x:univ_name) s = U.find_map s (function
+    | _ -> None
+    in
+  fun s -> U.find_map s fn
+
+let subst_univ_nm (x:univ_name) =
+  let fn = function
     | UD(y, i) when (x.idText=y.idText) -> Some (U_bvar i)
-    | _ -> None)
+    | _ -> None
+    in
+  fun s -> U.find_map s fn
 
 let rec subst_univ s u =
     let u = compress_univ u in
@@ -289,8 +304,12 @@ let shift n s = match s with
     | NM(x, i) -> NM(x, i+n)
     | UD(x, i) -> UD(x, i+n)
     | NT _  -> s
-let shift_subst n s = List.map (shift n) s
-let shift_subst' n s = fst s |> List.map (shift_subst n), snd s
+
+let shift_subst n =
+  let fn = shift n in
+  (fun s -> List.map fn s)
+
+let shift_subst' n s = List.map (shift_subst n) (fst s), snd s
 let subst_binder' s (x, imp) = {x with sort=subst' s x.sort}, subst_imp' s imp
 
 
