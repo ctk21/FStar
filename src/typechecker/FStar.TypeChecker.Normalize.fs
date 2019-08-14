@@ -998,7 +998,7 @@ let is_fext_on_domain (t:term) :option<term> =
   match (SS.compress t).n with
   | Tm_app (hd, args) ->
     (match (U.un_uinst hd).n with
-    | Tm_fvar fv when is_on_dom fv && List.length args = 3 ->  //first two are type arguments, third is the function
+    | Tm_fvar fv when List.length args = 3 && is_on_dom fv ->  //first two are type arguments, third is the function
       let f = args |> List.tl |> List.tl |> List.hd |> fst in  //get f
       Some f
     | _ -> None)
@@ -2224,10 +2224,14 @@ and rebuild (cfg:cfg) (env:env) (stack:stack) (t:term) : term =
                                (bvs |> List.map Print.bv_to_string |> String.concat ", ");
            failwith "DIE!");
 
-  let f_opt = is_fext_on_domain t in
-  if f_opt |> is_some && (match stack with | Arg _::_ -> true | _ -> false)  //AR: it is crucial to check that (on_domain a #b) is actually applied, else it would be unsound to reduce it to f
-  then f_opt |> must |> norm cfg env stack
-  else
+  //AR: it is crucial to check that (on_domain a #b) is actually applied, else it would be unsound to reduce it to f
+  let f_opt = match stack with
+      | Arg _::_ -> is_fext_on_domain t
+      | _ -> None
+  in
+  match f_opt with
+    | Some t -> norm cfg env stack t
+    | None -> begin
       let t = maybe_simplify cfg env stack t in
       match stack with
       | [] -> t
@@ -2499,7 +2503,6 @@ and rebuild (cfg:cfg) (env:env) (stack:stack) (t:term) : term =
                               (List.map (fun (_, t) -> Print.term_to_string t) s |> String.concat "; "));
                 //the elements of s are sub-terms of t
                 //the have no free de Bruijn indices; so their env=[]; see pre-condition at the top of rebuild
-                let env0 = env in
                 let env = List.fold_left
                       (fun env (bv, t) -> (Some (S.mk_binder bv),
                                            Clos([], t, BU.mk_ref (Some ([], t)), false))::env)
@@ -2510,6 +2513,7 @@ and rebuild (cfg:cfg) (env:env) (stack:stack) (t:term) : term =
         if cfg.steps.iota
         then matches scrutinee branches
         else norm_and_rebuild_match ()
+  end
 
 let normalize_with_primitive_steps ps s e t =
     let c = config' ps s e in
