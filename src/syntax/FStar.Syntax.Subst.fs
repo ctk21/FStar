@@ -210,46 +210,59 @@ let mk_range r (s:subst_ts) =
 (* Applies a substitution to a node,
      immediately if it is a variable
      or builds a delayed node otherwise *)
-let rec subst' (s:subst_ts) t =
-  let subst_tail (tl:list<list<subst_elt>>) = subst' (tl, snd s) in
-  match s with
-  | [], NoUseRange
-  | [[]], NoUseRange -> t
-  | _ ->
-    let t0 = try_read_memo t in
-    match t0.n with
-    | Tm_unknown
-    | Tm_constant _                      //a constant cannot be substituted
-    | Tm_fvar _ -> tag_with_range t0 s   //fvars are never subject to substitution
-
-    | Tm_delayed((t', s'), m) ->
-        //s' is the subsitution already associated with this node;
-        //s is the new subsitution to add to it
-        //compose substitutions by concatenating them
-        //the order of concatenation is important!
-        mk_Tm_delayed ((t', compose_subst s' s)) t.pos
-
-    | Tm_bvar a ->
-        apply_until_some_then_map (subst_bv a) (fst s) subst_tail t0
-
-    | Tm_name a ->
-        apply_until_some_then_map (subst_nm a) (fst s) subst_tail t0
-
-    | Tm_type u ->
-        mk (Tm_type (subst_univ (fst s) u)) None (mk_range t0.pos s)
-
+let subst' (s:subst_ts) t =
+  let rec aux (xss:list<list<subst_elt>>) (r:maybe_set_use_range) t =
+    match (xss, r) with
+    | [], NoUseRange
+    | [[]], NoUseRange -> t
     | _ ->
-      //NS: 04/12/2018
-      //    Substitutions on Tm_uvar just gets delayed
-      //    since its solution may eventually end up being an open term
-      mk_Tm_delayed ((t0, s)) (mk_range t.pos s)
+      let t0 = try_read_memo t in
+      match t0.n with
+      | Tm_unknown
+      | Tm_constant _                            //a constant cannot be substituted
+      | Tm_fvar _ -> tag_with_range t0 (xss, r)  //fvars are never subject to substitution
 
-and subst_flags' s flags =
-    flags |> List.map (function
-        | DECREASES a -> DECREASES (subst' s a)
-        | f -> f)
+      | Tm_delayed((t', s'), m) ->
+          //s' is the subsitution already associated with this node;
+          //s is the new subsitution to add to it
+          //compose substitutions by concatenating them
+          //the order of concatenation is important!
+          mk_Tm_delayed ((t', compose_subst s' (xss, r))) t.pos
 
-and subst_comp_typ' s t =
+      | Tm_bvar a ->
+          (match apply_until_some (subst_bv a) xss with
+            | None -> t0
+            | Some (rest, t1) -> aux rest r t1
+          )
+
+      | Tm_name a ->
+          (match apply_until_some (subst_nm a) xss with
+            | None -> t0
+            | Some (rest, t1) -> aux rest r t1
+          )
+
+      | Tm_type u ->
+          mk (Tm_type (subst_univ xss u)) None (mk_range t0.pos (xss, r))
+
+      | _ ->
+        //NS: 04/12/2018
+        //    Substitutions on Tm_uvar just gets delayed
+        //    since its solution may eventually end up being an open term
+        mk_Tm_delayed ((t0, (xss, r))) (mk_range t.pos (xss, r))
+  in
+  aux (fst s) (snd s) t
+
+let subst_flags' s flags =
+  flags |> List.map (function
+      | DECREASES a -> DECREASES (subst' s a)
+      | f -> f)
+
+let subst_imp' s i =
+  match i with
+  | Some (Meta t) -> Some (Meta (subst' s t))
+  | i -> i
+
+let subst_comp_typ' s t =
   match s with
   | [], NoUseRange
   | [[]], NoUseRange -> t
@@ -260,7 +273,7 @@ and subst_comp_typ' s t =
             flags=subst_flags' s t.flags;
             effect_args=List.map (fun (t, imp) -> subst' s t, subst_imp' s imp) t.effect_args}
 
-and subst_comp' s t =
+let subst_comp' s t =
   match s with
   | [], NoUseRange
   | [[]], NoUseRange -> t
@@ -269,11 +282,6 @@ and subst_comp' s t =
       | Total (t, uopt) -> mk_Total' (subst' s t) (Option.map (subst_univ (fst s)) uopt)
       | GTotal (t, uopt) -> mk_GTotal' (subst' s t) (Option.map (subst_univ (fst s)) uopt)
       | Comp ct -> mk_Comp(subst_comp_typ' s ct)
-
-and subst_imp' s i =
-  match i with
-  | Some (Meta t) -> Some (Meta (subst' s t))
-  | i -> i
 
 let shift n s = match s with
     | DB(i, t) -> DB(i+n, t)
