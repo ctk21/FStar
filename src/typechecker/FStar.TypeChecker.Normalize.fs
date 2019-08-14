@@ -25,6 +25,7 @@ open FStar.String
 open FStar.Const
 open FStar.Char
 open FStar.Errors
+open FStar.Ident
 open FStar.Syntax
 open FStar.Syntax.Syntax
 open FStar.Syntax.Subst
@@ -40,7 +41,6 @@ module BU = FStar.Util
 module FC = FStar.Const
 module PC = FStar.Parser.Const
 module U  = FStar.Syntax.Util
-module I  = FStar.Ident
 module EMB = FStar.Syntax.Embeddings
 module Z = FStar.BigInt
 
@@ -711,11 +711,11 @@ let tr_norm_step = function
     | EMB.Primops -> [Primops]
     | EMB.Reify ->   [Reify]
     | EMB.UnfoldOnly names ->
-        [UnfoldUntil delta_constant; UnfoldOnly (List.map I.lid_of_str names)]
+        [UnfoldUntil delta_constant; UnfoldOnly (List.map lid_of_str names)]
     | EMB.UnfoldFully names ->
-        [UnfoldUntil delta_constant; UnfoldFully (List.map I.lid_of_str names)]
+        [UnfoldUntil delta_constant; UnfoldFully (List.map lid_of_str names)]
     | EMB.UnfoldAttr names ->
-        [UnfoldUntil delta_constant; UnfoldAttr (List.map I.lid_of_str names)]
+        [UnfoldUntil delta_constant; UnfoldAttr (List.map lid_of_str names)]
     | EMB.NBE -> [NBE]
 
 let tr_norm_steps s =
@@ -987,13 +987,13 @@ let decide_unfolding cfg env stack rng fv qninfo (* : option<(cfg * stack)> *) =
         let stack = push (App (env, ref, None, Range.dummyRange)) stack in
         Some (cfg, stack)
 
-(* on_domain_lids are constant, so compute them once *)
-let on_domain_lids =
-  let fext_lid (s:string) = Ident.lid_of_path ["FStar"; "FunctionalExtensionality"; s] Range.dummyRange in
-  ["on_domain"; "on_dom"; "on_domain_g"; "on_dom_g"] |> List.map fext_lid
-
 let is_fext_on_domain (t:term) :option<term> =
-  let is_on_dom fv = on_domain_lids |> List.existsb (fun l -> S.fv_eq_lid fv l) in
+  let is_on_dom fv =
+    let fv_lid = fv.fv_name.v in
+    if fv_lid.nsstr = "FStar.FunctionalExtensionality"
+    then List.existsb (fun l-> fv_lid.ident.idText = l) ["on_domain"; "on_dom"; "on_domain_g"; "on_dom_g"]
+    else false
+  in
 
   match (SS.compress t).n with
   | Tm_app (hd, args) ->
