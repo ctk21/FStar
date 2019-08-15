@@ -347,7 +347,7 @@ module StringOps =
     type t = string
     let equal (x:t) (y:t) = x=y
     let compare (x:t) (y:t) = BatString.compare x y
-    let hash (x:t) = BatHashtbl.hash x
+    let hash (x:t) = String.hash x
   end
 
 module StringHashtbl = BatHashtbl.Make(StringOps)
