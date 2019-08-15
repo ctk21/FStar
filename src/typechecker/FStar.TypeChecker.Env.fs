@@ -247,9 +247,8 @@ let visible_at d q = match d, q with
   | InliningDelta, Inline_for_extraction -> true
   | _ -> false
 
-let default_table_size = 200
-let new_sigtab () = BU.smap_create default_table_size
-let new_gamma_cache () = BU.smap_create 100
+let new_sigtab () = BU.smap_create 16
+let new_gamma_cache () = BU.smap_create 16
 
 let initial_env deps tc_term type_of universe_of check_type_of solver module_lid nbe =
   { solver=solver;
@@ -283,9 +282,9 @@ let initial_env deps tc_term type_of universe_of check_type_of solver module_lid
     check_type_of=check_type_of;
     universe_of=universe_of;
     use_bv_sorts=false;
-    qtbl_name_and_index=BU.smap_create 10, None;  //10?
-    normalized_eff_names=BU.smap_create 20;  //20?
-    fv_delta_depths = BU.smap_create 50;
+    qtbl_name_and_index=BU.smap_create 16, None;
+    normalized_eff_names=BU.smap_create 16;
+    fv_delta_depths = BU.smap_create 16;
     proof_ns = Options.using_facts_from ();
     synth_hook = (fun e g tau -> failwith "no synthesizer available");
     splice = (fun e tau -> failwith "no splicer available");
@@ -295,7 +294,7 @@ let initial_env deps tc_term type_of universe_of check_type_of solver module_lid
     tc_hooks = default_tc_hooks;
     dsenv = FStar.Syntax.DsEnv.empty_env deps;
     nbe = nbe;
-    strict_args_tab = BU.smap_create 20;
+    strict_args_tab = BU.smap_create 16;
   }
 
 let dsenv env = env.dsenv

@@ -156,7 +156,7 @@ let syntax_only env = env.syntax_only
 let set_syntax_only env b = { env with syntax_only = b }
 let ds_hooks env = env.ds_hooks
 let set_ds_hooks env hooks = { env with ds_hooks = hooks }
-let new_sigmap () = BU.smap_create 100
+let new_sigmap () = BU.smap_create 16
 let empty_env deps = {curmodule=None;
                     curmonad=None;
                     modules=[];

@@ -116,7 +116,7 @@ let err_unexpected_eff env t ty f0 f1 =
 (* Translating an effect lid to an e_tag = {E_PURE, E_GHOST, E_IMPURE} *)
 (***********************************************************************)
 let effect_as_etag =
-    let cache = BU.smap_create 20 in
+    let cache = BU.smap_create 16 in
     let rec delta_norm_eff g (l:lident) =
         match BU.smap_try_find cache l.str with
             | Some l -> l
